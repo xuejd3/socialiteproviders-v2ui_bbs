@@ -6,7 +6,7 @@ use SocialiteProviders\Manager\SocialiteWasCalled;
 
 class V2uiBbsExtendSocialite
 {
-    public function handle(SocialiteWasCalled $socialiteWasCalled)
+    public function handle(SocialiteWasCalled $socialiteWasCalled): void
     {
         $socialiteWasCalled->extendSocialite('v2ui_bbs', Provider::class);
     }

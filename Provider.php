@@ -2,100 +2,53 @@
 
 namespace SocialiteProviders\V2uiBbs;
 
+use GuzzleHttp\RequestOptions;
 use SocialiteProviders\Manager\OAuth2\AbstractProvider;
 use SocialiteProviders\Manager\OAuth2\User;
 
 class Provider extends AbstractProvider
 {
-    /**
-     * Unique Provider Identifier.
-     */
-    const IDENTIFIER = 'V2uiBbs';
+    public const URL = 'https://bbs.v2ui.com';
 
-    /**
-     * @var string OAuth Domain
-     */
-    protected $domain = 'https://bbs.v2ui.com';
-
-    /**
-     * Get the authentication URL for the provider.
-     *
-     * @param string $state
-     *
-     * @return string
-     */
-    protected function getAuthUrl($state)
+    protected function getAuthUrl($state): string
     {
-        return $this->buildAuthUrlFromBase($this->domain . '/oauth/authorize', $state);
+        return $this->buildAuthUrlFromBase(self::URL.'/oauth/authorize', $state);
     }
 
-    /**
-     * Get the token URL for the provider.
-     * @return string
-     */
-    protected function getTokenUrl()
+    protected function getTokenUrl(): string
     {
-        return $this->domain . '/oauth/token';
+        return self::URL.'/oauth/access_token';
     }
 
-    /**
-     * Get the access token for the given code.
-     *
-     * @param string $code
-     *
-     * @return string
-     */
-    public function getAccessToken($code)
+    protected function getRequestOptions($token): array
     {
-        $response = $this->getHttpClient()->post($this->getTokenUrl(), [
-            'form_params' => $this->getTokenFields($code),
-        ]);
-        $this->credentialsResponseBody = json_decode($response->getBody(), true);
-
-        return $this->parseAccessToken($response->getBody());
+        return [
+            RequestOptions::HEADERS => [
+                // 'Accept' => 'application/vnd.github.v3+json',
+                'Authorization' => 'Bearer '.$token,
+            ],
+        ];
     }
 
-    /**
-     * Get the POST fields for the token request.
-     *
-     * @param string $code
-     *
-     * @return array
-     */
-    protected function getTokenFields($code)
-    {
-        return parent::getTokenFields($code) + ['grant_type' => 'authorization_code'];
-    }
-
-    /**
-     * Get the raw user for the given access token.
-     *
-     * @param string $token
-     *
-     * @return array
-     */
     protected function getUserByToken($token)
     {
-        $response = $this->getHttpClient()->get($this->domain . '/api/user', [
-            'headers' => ['Authorization' => 'Bearer ' . $token],
-        ]);
+        $userUrl = self::URL.'/api/user';
+
+        $response = $this->getHttpClient()->get(
+            $userUrl,
+            $this->getRequestOptions($token)
+        );
 
         return json_decode($response->getBody(), true);
     }
 
-    /**
-     * Map the raw user array to a Socialite User instance.
-     *
-     * @param array $user
-     *
-     * @return \Laravel\Socialite\User
-     */
     protected function mapUserToObject(array $user)
     {
         return (new User())->setRaw($user)->map([
             'id'       => $user['id'],
             'nickname' => null,
             'name'     => $user['name'],
+            'phone'    => $user['phone'],
             'email'    => $user['email'],
             'avatar'   => $user['avatar'],
         ]);
