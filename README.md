@@ -22,11 +22,24 @@ composer require xuejd3/socialiteproviders-v2ui_bbs
 ```
 
 ## 2. Service Provider
-- Remove `Laravel\Socialite\SocialiteServiceProvider` from your `providers[]` array in `config\app.php` if you have added it already.
 
-- Add `\SocialiteProviders\Manager\ServiceProvider::class` to your `providers[]` array in `config\app.php`.
+- Remove if you have added it already.Laravel\Socialite\SocialiteServiceProvider
 
-For example:
+- Add .\SocialiteProviders\Manager\ServiceProvider::class
+
+### For example in Laravel 11+
+In ```.bootstrap/providers.php```
+
+```php
+return [
+    // a whole bunch of providers
+    // remove 'Laravel\Socialite\SocialiteServiceProvider',
+    \SocialiteProviders\Manager\ServiceProvider::class, // add
+];
+```
+
+### For example in Laravel 10 or below
+In ```.config\app.php```
 
 ```php
 'providers' => [
@@ -36,17 +49,54 @@ For example:
 ];
 ```
 
-- Note: If you would like to use the Socialite Facade, you need to [install it.](https://github.com/laravel/socialite)
+- Note: If you would like to use the Socialite Facade, you need to [install the official package](https://github.com/laravel/socialite).
 
 ## 3. Event Listener
 
-- Add `SocialiteProviders\Manager\SocialiteWasCalled` event to your `listen[]` array in `app/Providers/EventServiceProvider`.
+### Laravel 11+
+In Laravel 11, the default provider was removed. Instead, add the listener using the method on the facade, in your EventServiceProviderlistenEventAppServiceProvider
 
-- Add your listeners (i.e. the ones from the providers) to the `SocialiteProviders\Manager\SocialiteWasCalled[]` that you just created.
+Note: You do not need to add anything for the built-in socialite providers unless you override them with your own providers.
 
-- The listener that you add for this provider is `'SocialiteProviders\\V2uiBbs\\V2uiBbsExtendSocialite@handle',`.
+```php
+namespace App\Providers;
+
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        //
+    }
+
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        Event::listen(function (\SocialiteProviders\Manager\SocialiteWasCalled $event) {
+            $event->extendSocialite('v2ui_bbs', \SocialiteProviders\V2uiBbs\Provider::class);
+        });
+    }
+}
+```
+
+### Laravel 10 or below
+
+- Add event to your array in ```SocialiteProviders\Manager\SocialiteWasCalledlisten[]app/Providers/EventServiceProvider```
+
+- Add your listeners (i.e. the ones from the providers) to the that you just created.```SocialiteProviders\Manager\SocialiteWasCalled[]```
+
+- Add the listener for your provider to the array. In our example, this is .```SocialiteProviders\\Zoho\\ZohoExtendSocialite@handle```,
 
 - Note: You do not need to add anything for the built-in socialite providers unless you override them with your own providers.
+
+For example with v2ui_bbs:
 
 For example:
 
@@ -66,19 +116,22 @@ protected $listen = [
 
 #### Reference
 
--   [Laravel docs about events](http://laravel.com/docs/master/events)
+- [Laravel docs about events](http://laravel.com/docs/master/events)
+- [Laracasts video on events in Laravel 5](https://laracasts.com/lessons/laravel-5-events)
 
 ## 4. Configuration setup
 
-You will need to add an entry to the services configuration file so that after config files are cached for usage in production environment (Laravel command artisan config:cache) all config is still available.
+You will need to add an entry to the services configuration file so that after config files are cached for usage in production environment (Laravel command ) all config is still available.```artisan config:cache```
 
-#### Add to `config/services.php`.
+See your provider README for more infomation on the required config.
+
+#### Add configuration to `config/services.php`.
 
 ```php
 'v2ui_bbs' => [
-    'client_id'     => env('V2uiBbs_KEY'),
-    'client_secret' => env('V2uiBbs_SECRET'),
-    'redirect'      => env('V2uiBbs_REDIRECT_URI'),
+    'client_id'     => env('V2UI_BBS_KEY'),
+    'client_secret' => env('V2UI_BBS_SECRET'),
+    'redirect'      => env('V2UI_BBS_REDIRECT_URI'),
     'guzzle'        => [
         'headers' => ['User-Agent' => 'xuejd3/socialiteproviders-v2ui_bbs'],
     ]
@@ -92,7 +145,7 @@ You will need to add an entry to the services configuration file so that after c
 - You should now be able to use it like you would regularly use Socialite (assuming you have the facade installed):
 
 ```php
-return Socialite::with('v2ui_bbs')->redirect();
+return Socialite::driver('v2ui_bbs')->redirect();
 ```
 
 ```php
@@ -120,10 +173,10 @@ Also, configs cannot be parsed from the `services[]` in Lumen. You can only se
 
 ```
 // to turn off stateless
-return Socialite::with('v2ui_bbs')->stateless(false)->redirect();
+return Socialite::driver('v2ui_bbs')->stateless(false)->redirect();
 
 // to use stateless
-return Socialite::with('v2ui_bbs')->stateless()->redirect();
+return Socialite::driver('v2ui_bbs')->stateless()->redirect();
 
 ```
 
