@@ -28,7 +28,7 @@ return [
 ## Event Listener
 
 ### Laravel 11+
-In Laravel 11, the default provider was removed. Instead, add the listener using the method on the facade, in your EventServiceProviderlistenEventAppServiceProvider
+In Laravel 11, the default ```EventServiceProvider``` provider was removed. Instead, add the listener using the ```listen``` method on the ```Event``` facade, in your ```AppServiceProvider```
 
 Note: You do not need to add anything for the built-in socialite providers unless you override them with your own providers.
 
