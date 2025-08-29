@@ -1,0 +1,20 @@
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "xuejd3/socialiteproviders-v2ui_bbs",
+    "description": "v2ui_bbs OAuth2 Provider for Laravel Socialite",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "xuejd3",
+            "email": "xuejd3@gmail.com"
+        }
+    ],
+    "require": {
+        "socialiteproviders/manager": "^v4.8.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "SocialiteProviders\\V2uiBbs\\": ""
+        }
+    }
+}
