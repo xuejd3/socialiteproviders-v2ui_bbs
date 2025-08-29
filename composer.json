@@ -3,6 +3,21 @@
     "name": "xuejd3/socialiteproviders-v2ui_bbs",
     "description": "v2ui_bbs OAuth2 Provider for Laravel Socialite",
     "license": "MIT",
+    "keywords": [
+        "v2ui_bbs",
+        "v2ui_bbs client key",
+        "v2ui_bbs sign in",
+        "client key generator",
+        "client key refresh",
+        "laravel",
+        "laravel v2ui_bbs",
+        "laravel socialite",
+        "oauth",
+        "provider",
+        "sign in with v2ui_bbs",
+        "socialite",
+        "socialite v2ui_bbs"
+    ],
     "authors": [
         {
             "name": "xuejd3",
