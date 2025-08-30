@@ -17,14 +17,14 @@ class Provider extends AbstractProvider
 
     protected function getTokenUrl(): string
     {
-        return self::URL.'/oauth/access_token';
+        return self::URL.'/api/v1/oauth/access_token';
     }
 
     protected function getRequestOptions($token): array
     {
         return [
             RequestOptions::HEADERS => [
-                // 'Accept' => 'application/vnd.github.v3+json',
+                'Accept' => 'application/json',
                 'Authorization' => 'Bearer '.$token,
             ],
         ];
@@ -32,7 +32,7 @@ class Provider extends AbstractProvider
 
     protected function getUserByToken($token)
     {
-        $userUrl = self::URL.'/api/user';
+        $userUrl = self::URL.'/api/v1/oauth/user';
 
         $response = $this->getHttpClient()->get(
             $userUrl,
@@ -44,6 +44,8 @@ class Provider extends AbstractProvider
 
     protected function mapUserToObject(array $user)
     {
+        $user = $user['data'];
+
         return (new User())->setRaw($user)->map([
             'id'       => $user['id'],
             'nickname' => null,
